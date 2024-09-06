@@ -6,6 +6,22 @@
     <title>カレーの作り方</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes wiggle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
         .check-icon {
             width: 1.5em;
             height: 1.5em;
@@ -32,50 +48,71 @@
         #progress-bar {
             transition: width 0.5s ease-in-out;
         }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .wiggle-animation {
+            animation: wiggle 1s ease-in-out infinite;
+        }
+        .icon-container {
+            display: inline-block;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="max-w-md mx-auto bg-amber-50 p-6 rounded-xl shadow-lg">
-        <h1 class="text-3xl font-bold mb-6 text-amber-800">カレーの作り方</h1>
+        <h1 class="text-3xl font-bold mb-6 text-amber-800 pulse-animation">カレーの作り方</h1>
         <div class="mb-4 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
             <div id="progress-bar" class="bg-amber-600 h-2.5 rounded-full" style="width: 0%"></div>
         </div>
         <ol id="recipe-steps" class="space-y-4">
             <li class="step flex items-start">
+                <div class="icon-container float-animation">🥕</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">玉ねぎ、にんじん、じゃがいもを一口大に切る</span>
             </li>
             <li class="step flex items-start">
+                <div class="icon-container float-animation">🍳</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">鍋に油を熱し、玉ねぎを炒める</span>
             </li>
             <li class="step flex items-start">
+                <div class="icon-container float-animation">🥩</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">肉を加えて炒める</span>
             </li>
             <li class="step flex items-start">
+                <div class="icon-container float-animation">🥔</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">にんじんとじゃがいもを加え、軽く炒める</span>
             </li>
             <li class="step flex items-start">
+                <div class="icon-container float-animation">💧</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">水を加え、野菜が柔らかくなるまで煮る</span>
             </li>
             <li class="step flex items-start">
+                <div class="icon-container float-animation">🧂</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">ルーを加え、とろみがつくまで煮込む</span>
             </li>
             <li class="step flex items-start">
+                <div class="icon-container float-animation">🍯</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">好みで隠し味を加える（例：はちみつ、チョコレート）</span>
             </li>
             <li class="step flex items-start">
+                <div class="icon-container float-animation">🍛</div>
                 <input type="checkbox" class="mr-2 mt-1" />
                 <span class="text-amber-900">火を止め、少し置いてから盛り付ける</span>
             </li>
         </ol>
-        <p id="completion-message" class="mt-6 text-amber-700 italic hidden">
-            美味しいカレーの出来上がり！お好みでトッピングを加えてお楽しみください。
+        <p id="completion-message" class="mt-6 text-amber-700 italic hidden wiggle-animation">
+            美味しいカレーの出来上がり！🎉 お好みでトッピングを加えてお楽しみください。
         </p>
     </div>
 
@@ -89,7 +126,7 @@
             steps.forEach((step, index) => {
                 setTimeout(() => {
                     step.classList.add('visible');
-                }, index * 200);
+                }, index * 300);
             });
 
             // Handle checkbox clicks
@@ -100,20 +137,24 @@
                     if (checkbox.checked) {
                         step.classList.add('completed');
                         completedSteps++;
+                        step.querySelector('.icon-container').classList.add('wiggle-animation');
                     } else {
                         step.classList.remove('completed');
                         completedSteps--;
+                        step.querySelector('.icon-container').classList.remove('wiggle-animation');
                     }
 
-                    // Update progress bar
+                    // Update progress bar with animation
                     const progress = (completedSteps / steps.length) * 100;
                     progressBar.style.width = `${progress}%`;
 
                     // Show completion message if all steps are done
                     if (completedSteps === steps.length) {
                         completionMessage.classList.remove('hidden');
+                        completionMessage.classList.add('pulse-animation');
                     } else {
                         completionMessage.classList.add('hidden');
+                        completionMessage.classList.remove('pulse-animation');
                     }
                 });
             });
