@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カレーの作り方</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <style>
+        .check-icon {
+            width: 1.5em;
+            height: 1.5em;
+            display: inline-block;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .step {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .step.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        #progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="max-w-md mx-auto bg-amber-50 p-6 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold mb-6 text-amber-800">カレーの作り方</h1>
+        <div class="mb-4 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div id="progress-bar" class="bg-amber-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+        <ol id="recipe-steps" class="space-y-4">
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">玉ねぎ、にんじん、じゃがいもを一口大に切る</span>
+            </li>
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">鍋に油を熱し、玉ねぎを炒める</span>
+            </li>
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">肉を加えて炒める</span>
+            </li>
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">にんじんとじゃがいもを加え、軽く炒める</span>
+            </li>
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">水を加え、野菜が柔らかくなるまで煮る</span>
+            </li>
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">ルーを加え、とろみがつくまで煮込む</span>
+            </li>
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">好みで隠し味を加える（例：はちみつ、チョコレート）</span>
+            </li>
+            <li class="step flex items-start">
+                <input type="checkbox" class="mr-2 mt-1" />
+                <span class="text-amber-900">火を止め、少し置いてから盛り付ける</span>
+            </li>
+        </ol>
+        <p id="completion-message" class="mt-6 text-amber-700 italic hidden">
+            美味しいカレーの出来上がり！お好みでトッピングを加えてお楽しみください。
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const steps = document.querySelectorAll('.step');
+            const progressBar = document.getElementById('progress-bar');
+            const completionMessage = document.getElementById('completion-message');
+
+            // Fade in steps one by one
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    step.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Handle checkbox clicks
+            let completedSteps = 0;
+            steps.forEach((step) => {
+                const checkbox = step.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        step.classList.add('completed');
+                        completedSteps++;
+                    } else {
+                        step.classList.remove('completed');
+                        completedSteps--;
+                    }
+
+                    // Update progress bar
+                    const progress = (completedSteps / steps.length) * 100;
+                    progressBar.style.width = `${progress}%`;
+
+                    // Show completion message if all steps are done
+                    if (completedSteps === steps.length) {
+                        completionMessage.classList.remove('hidden');
+                    } else {
+                        completionMessage.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
