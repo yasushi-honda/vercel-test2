@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>カレーの作り方</title>
+    <title>カレー作りゲーム</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <style>
         @keyframes float {
@@ -22,143 +22,176 @@
             75% { transform: rotate(-5deg); }
             100% { transform: rotate(0deg); }
         }
-        .check-icon {
-            width: 1.5em;
-            height: 1.5em;
-            display: inline-block;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        .step {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s, transform 0.5s;
-        }
-        .step.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .completed {
-            text-decoration: line-through;
-            color: #888;
-        }
-        #progress-bar {
-            transition: width 0.5s ease-in-out;
-        }
-        .float-animation {
-            animation: float 3s ease-in-out infinite;
-        }
-        .pulse-animation {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        .wiggle-animation {
-            animation: wiggle 1s ease-in-out infinite;
-        }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        .pulse-animation { animation: pulse 2s ease-in-out infinite; }
+        .wiggle-animation { animation: wiggle 1s ease-in-out infinite; }
         .icon-container {
             display: inline-block;
             margin-right: 10px;
+            font-size: 1.5em;
+        }
+        #game-container { position: relative; }
+        #mini-game {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .ingredient {
+            position: absolute;
+            font-size: 2em;
+            cursor: pointer;
         }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="max-w-md mx-auto bg-amber-50 p-6 rounded-xl shadow-lg">
-        <h1 class="text-3xl font-bold mb-6 text-amber-800 pulse-animation">カレーの作り方</h1>
+    <div id="game-container" class="max-w-md mx-auto bg-amber-50 p-6 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold mb-6 text-amber-800 pulse-animation">カレー作りゲーム</h1>
+        <div class="mb-4 flex justify-between items-center">
+            <div>レベル: <span id="level">1</span></div>
+            <div>ポイント: <span id="points">0</span></div>
+        </div>
         <div class="mb-4 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
             <div id="progress-bar" class="bg-amber-600 h-2.5 rounded-full" style="width: 0%"></div>
         </div>
         <ol id="recipe-steps" class="space-y-4">
             <li class="step flex items-start">
                 <div class="icon-container float-animation">🥕</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">玉ねぎ、にんじん、じゃがいもを一口大に切る</span>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    野菜を切る
+                </button>
             </li>
             <li class="step flex items-start">
                 <div class="icon-container float-animation">🍳</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">鍋に油を熱し、玉ねぎを炒める</span>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    玉ねぎを炒める
+                </button>
             </li>
             <li class="step flex items-start">
                 <div class="icon-container float-animation">🥩</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">肉を加えて炒める</span>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    肉を炒める
+                </button>
             </li>
             <li class="step flex items-start">
-                <div class="icon-container float-animation">🥔</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">にんじんとじゃがいもを加え、軽く炒める</span>
-            </li>
-            <li class="step flex items-start">
-                <div class="icon-container float-animation">💧</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">水を加え、野菜が柔らかくなるまで煮る</span>
+                <div class="icon-container float-animation">🥘</div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    野菜を煮る
+                </button>
             </li>
             <li class="step flex items-start">
                 <div class="icon-container float-animation">🧂</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">ルーを加え、とろみがつくまで煮込む</span>
-            </li>
-            <li class="step flex items-start">
-                <div class="icon-container float-animation">🍯</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">好みで隠し味を加える（例：はちみつ、チョコレート）</span>
-            </li>
-            <li class="step flex items-start">
-                <div class="icon-container float-animation">🍛</div>
-                <input type="checkbox" class="mr-2 mt-1" />
-                <span class="text-amber-900">火を止め、少し置いてから盛り付ける</span>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    ルーを加える
+                </button>
             </li>
         </ol>
         <p id="completion-message" class="mt-6 text-amber-700 italic hidden wiggle-animation">
-            美味しいカレーの出来上がり！🎉 お好みでトッピングを加えてお楽しみください。
+            美味しいカレーの出来上がり！🎉 レベルアップしました！
         </p>
+        <div id="mini-game" class="hidden">
+            <h2 class="text-xl font-bold mb-4">材料集めゲーム</h2>
+            <p class="mb-2">制限時間内にできるだけ多くの材料をクリックしてください！</p>
+            <p>残り時間: <span id="time-left">10</span>秒</p>
+            <p>獲得ポイント: <span id="mini-game-points">0</span></p>
+            <div id="game-area" class="w-64 h-64 bg-gray-200 relative"></div>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const steps = document.querySelectorAll('.step');
-            const progressBar = document.getElementById('progress-bar');
-            const completionMessage = document.getElementById('completion-message');
+        const steps = document.querySelectorAll('.step');
+        const progressBar = document.getElementById('progress-bar');
+        const completionMessage = document.getElementById('completion-message');
+        const levelDisplay = document.getElementById('level');
+        const pointsDisplay = document.getElementById('points');
+        const miniGame = document.getElementById('mini-game');
+        const gameArea = document.getElementById('game-area');
+        const timeLeftDisplay = document.getElementById('time-left');
+        const miniGamePointsDisplay = document.getElementById('mini-game-points');
 
-            // Fade in steps one by one
-            steps.forEach((step, index) => {
-                setTimeout(() => {
-                    step.classList.add('visible');
-                }, index * 300);
+        let level = 1;
+        let points = 0;
+        let completedSteps = 0;
+
+        function updateProgress() {
+            const progress = (completedSteps / steps.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            if (completedSteps === steps.length) {
+                completionMessage.classList.remove('hidden');
+                level++;
+                levelDisplay.textContent = level;
+                resetSteps();
+            }
+        }
+
+        function resetSteps() {
+            completedSteps = 0;
+            steps.forEach(step => {
+                step.querySelector('button').disabled = false;
+                step.classList.remove('completed');
             });
+            updateProgress();
+        }
 
-            // Handle checkbox clicks
-            let completedSteps = 0;
-            steps.forEach((step) => {
-                const checkbox = step.querySelector('input[type="checkbox"]');
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.checked) {
-                        step.classList.add('completed');
-                        completedSteps++;
-                        step.querySelector('.icon-container').classList.add('wiggle-animation');
-                    } else {
-                        step.classList.remove('completed');
-                        completedSteps--;
-                        step.querySelector('.icon-container').classList.remove('wiggle-animation');
-                    }
+        function startMiniGame() {
+            miniGame.classList.remove('hidden');
+            let timeLeft = 10;
+            let miniGamePoints = 0;
 
-                    // Update progress bar with animation
-                    const progress = (completedSteps / steps.length) * 100;
-                    progressBar.style.width = `${progress}%`;
+            function createIngredient() {
+                const ingredient = document.createElement('div');
+                ingredient.classList.add('ingredient');
+                ingredient.style.left = `${Math.random() * 90}%`;
+                ingredient.style.top = `${Math.random() * 90}%`;
+                ingredient.textContent = ['🥕', '🥔', '🍖', '🧅'][Math.floor(Math.random() * 4)];
+                ingredient.onclick = () => {
+                    miniGamePoints += 10;
+                    miniGamePointsDisplay.textContent = miniGamePoints;
+                    ingredient.remove();
+                    createIngredient();
+                };
+                gameArea.appendChild(ingredient);
+            }
 
-                    // Show completion message if all steps are done
-                    if (completedSteps === steps.length) {
-                        completionMessage.classList.remove('hidden');
-                        completionMessage.classList.add('pulse-animation');
-                    } else {
-                        completionMessage.classList.add('hidden');
-                        completionMessage.classList.remove('pulse-animation');
-                    }
-                });
+            for (let i = 0; i < 5; i++) {
+                createIngredient();
+            }
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                timeLeftDisplay.textContent = timeLeft;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    miniGame.classList.add('hidden');
+                    points += miniGamePoints;
+                    pointsDisplay.textContent = points;
+                    gameArea.innerHTML = '';
+                }
+            }, 1000);
+        }
+
+        steps.forEach((step, index) => {
+            const button = step.querySelector('button');
+            button.addEventListener('click', () => {
+                if (Math.random() < 0.3) {
+                    startMiniGame();
+                } else {
+                    points += 50;
+                    pointsDisplay.textContent = points;
+                }
+                button.disabled = true;
+                step.classList.add('completed');
+                completedSteps++;
+                updateProgress();
             });
         });
+
+        updateProgress();
     </script>
 </body>
 </html>
