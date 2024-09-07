@@ -7,8 +7,8 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #1c1c1c;
-            color: #f4f4f4;
+            background-color: #f0f0f0;
+            color: #333;
             margin: 0;
             padding: 0;
             display: flex;
@@ -18,64 +18,158 @@
         }
 
         h1 {
-            font-size: 2rem;
-            color: #ffcc00;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            font-size: 1.5rem;
+            color: #2c3e50;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             text-align: center;
         }
 
         .video-container {
-            background: linear-gradient(135deg, #ff5858, #f09819);
+            background: #ffffff;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease-in-out;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             max-width: 100%;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            border: 1px solid #dcdcdc;
         }
 
-        .video-container:hover {
-            transform: scale(1.02);
+        .video-wrapper {
+            position: relative;
+            width: 640px;
+            height: 360px;
+            background-color: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         video {
             width: 100%;
-            max-width: 640px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            height: 100%;
+            border-radius: 4px;
         }
 
-        video::-webkit-media-controls-panel {
-            background-color: rgba(0, 0, 0, 0.7);
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
         }
 
-        video::-webkit-media-controls-play-button,
-        video::-webkit-media-controls-fullscreen-button {
-            background-color: rgba(255, 204, 0, 0.8);
-            border-radius: 50%;
+        .play-button,
+        .fullscreen-button {
+            background-color: #2c3e50;
+            border: none;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 4px;
+            cursor: pointer;
             transition: background-color 0.3s;
+            color: #fff;
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        video::-webkit-media-controls-play-button:hover,
-        video::-webkit-media-controls-fullscreen-button:hover {
-            background-color: rgba(255, 153, 0, 0.8);
+        .play-button:hover,
+        .fullscreen-button:hover {
+            background-color: #34495e;
         }
 
-        video::-webkit-media-controls-timeline {
-            background-color: rgba(255, 255, 255, 0.3);
+        .time-display {
+            color: #333;
+            font-size: 1rem;
+            margin-left: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            margin: 0 10px;
+            height: 6px;
+            background-color: #dcdcdc;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress {
+            background-color: #3498db;
+            height: 100%;
+            border-radius: 3px;
+            width: 0%;
         }
     </style>
 </head>
 <body>
     <div class="video-container">
         <h1>スマート介護士試験 動画問題</h1>
-        <video controls>
-            <source src="https://storage.googleapis.com/smartcare-test/%E5%95%8F5%20%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E4%BB%8B%E8%AD%B7%E5%A3%AB%E8%A9%A6%E9%A8%93%E5%8B%95%E7%94%BB%E5%95%8F%E9%A1%8C%EF%BC%88%E5%AD%97%E5%B9%95%EF%BC%89.mp4" type="video/mp4">
-            お使いのブラウザは動画再生に対応していません。
-        </video>
+        <div class="video-wrapper">
+            <video id="video" width="640" height="360">
+                <source src="https://storage.googleapis.com/smartcare-test/%E5%95%8F5%20%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E4%BB%8B%E8%AD%B7%E5%A3%AB%E8%A9%A6%E9%A8%93%E5%8B%95%E7%94%BB%E5%95%8F%E9%A1%8C%EF%BC%88%E5%AD%97%E5%B9%95%EF%BC%89.mp4" type="video/mp4">
+                お使いのブラウザは動画再生に対応していません。
+            </video>
+        </div>
+        <div class="controls">
+            <button class="play-button" onclick="togglePlayPause()">
+                ▶️
+            </button>
+            <div class="progress-bar" onclick="seek(event)">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="time-display" id="time-display">00:00 / 01:30</div>
+            <button class="fullscreen-button" onclick="toggleFullscreen()">
+                ⛶
+            </button>
+        </div>
     </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const playButton = document.querySelector('.play-button');
+        const progressBar = document.querySelector('.progress-bar');
+        const progress = document.getElementById('progress');
+        const timeDisplay = document.getElementById('time-display');
+
+        function togglePlayPause() {
+            if (video.paused) {
+                video.play();
+                playButton.textContent = '⏸️';
+            } else {
+                video.pause();
+                playButton.textContent = '▶️';
+            }
+        }
+
+        function updateProgress() {
+            const percent = (video.currentTime / video.duration) * 100;
+            progress.style.width = `${percent}%`;
+            timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secondsPart = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${minutes}:${secondsPart}`;
+        }
+
+        function seek(event) {
+            const seekTime = (event.offsetX / progressBar.offsetWidth) * video.duration;
+            video.currentTime = seekTime;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                video.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        video.addEventListener('timeupdate', updateProgress);
+    </script>
 </body>
 </html>
