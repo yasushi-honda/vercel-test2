@@ -3,86 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>カスタムYouTubeプレイヤー</title>
+    <title>カレー作りゲーム</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <style>
-        #videoContainer {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 アスペクト比 */
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-            background: #000;
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
-        #videoContainer iframe {
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes wiggle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        .pulse-animation { animation: pulse 2s ease-in-out infinite; }
+        .wiggle-animation { animation: wiggle 1s ease-in-out infinite; }
+        .icon-container {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+        #game-container { position: relative; }
+        #mini-game {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* クリックイベントを無効化 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
-        #customControls {
-            text-align: center;
-            margin-top: 20px;
-        }
-        #playButton, #pauseButton {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
+        .ingredient {
+            position: absolute;
+            font-size: 2em;
             cursor: pointer;
-            margin: 0 10px;
-        }
-        #playButton:hover, #pauseButton:hover {
-            background-color: #0056b3;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div id="game-container" class="max-w-md mx-auto bg-amber-50 p-6 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold mb-6 text-amber-800 pulse-animation">カレー作りゲーム</h1>
+        <div class="mb-4 flex justify-between items-center">
+            <div>レベル: <span id="level">1</span></div>
+            <div>ポイント: <span id="points">0</span></div>
+        </div>
+        <div class="mb-4 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div id="progress-bar" class="bg-amber-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+        <ol id="recipe-steps" class="space-y-4">
+            <li class="step flex items-start">
+                <div class="icon-container float-animation">🥕</div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    野菜を切る
+                </button>
+            </li>
+            <li class="step flex items-start">
+                <div class="icon-container float-animation">🍳</div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    玉ねぎを炒める
+                </button>
+            </li>
+            <li class="step flex items-start">
+                <div class="icon-container float-animation">🥩</div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    肉を炒める
+                </button>
+            </li>
+            <li class="step flex items-start">
+                <div class="icon-container float-animation">🥘</div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    野菜を煮る
+                </button>
+            </li>
+            <li class="step flex items-start">
+                <div class="icon-container float-animation">🧂</div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    ルーを加える
+                </button>
+            </li>
+        </ol>
+        <p id="completion-message" class="mt-6 text-amber-700 italic hidden wiggle-animation">
+            美味しいカレーの出来上がり！🎉 レベルアップしました！
+        </p>
+        <div id="mini-game" class="hidden">
+            <h2 class="text-xl font-bold mb-4">材料集めゲーム</h2>
+            <p class="mb-2">制限時間内にできるだけ多くの材料をクリックしてください！</p>
+            <p>残り時間: <span id="time-left">10</span>秒</p>
+            <p>獲得ポイント: <span id="mini-game-points">0</span></p>
+            <div id="game-area" class="w-64 h-64 bg-gray-200 relative"></div>
+        </div>
+    </div>
 
-<div id="videoContainer">
-    <iframe id="youtubePlayer" src="https://www.youtube.com/embed/ZEvnP-DdWAM?rel=0&modestbranding=1&controls=0&showinfo=0&autoplay=0" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-</div>
+    <script>
+        const steps = document.querySelectorAll('.step');
+        const progressBar = document.getElementById('progress-bar');
+        const completionMessage = document.getElementById('completion-message');
+        const levelDisplay = document.getElementById('level');
+        const pointsDisplay = document.getElementById('points');
+        const miniGame = document.getElementById('mini-game');
+        const gameArea = document.getElementById('game-area');
+        const timeLeftDisplay = document.getElementById('time-left');
+        const miniGamePointsDisplay = document.getElementById('mini-game-points');
 
-<div id="customControls">
-    <button id="playButton" onclick="playVideo()">再生</button>
-    <button id="pauseButton" onclick="pauseVideo()">停止</button>
-</div>
+        let level = 1;
+        let points = 0;
+        let completedSteps = 0;
 
-<script>
-    // YouTube IFrame APIを非同期に読み込む
-    var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        function updateProgress() {
+            const progress = (completedSteps / steps.length) * 100;
+            progressBar.style.width = `${progress}%`;
 
-    var player;
-
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('youtubePlayer', {
-            events: {
-                'onReady': onPlayerReady
+            if (completedSteps === steps.length) {
+                completionMessage.classList.remove('hidden');
+                level++;
+                levelDisplay.textContent = level;
+                resetSteps();
             }
+        }
+
+        function resetSteps() {
+            completedSteps = 0;
+            steps.forEach(step => {
+                step.querySelector('button').disabled = false;
+                step.classList.remove('completed');
+            });
+            updateProgress();
+        }
+
+        function startMiniGame() {
+            miniGame.classList.remove('hidden');
+            let timeLeft = 10;
+            let miniGamePoints = 0;
+
+            function createIngredient() {
+                const ingredient = document.createElement('div');
+                ingredient.classList.add('ingredient');
+                ingredient.style.left = `${Math.random() * 90}%`;
+                ingredient.style.top = `${Math.random() * 90}%`;
+                ingredient.textContent = ['🥕', '🥔', '🍖', '🧅'][Math.floor(Math.random() * 4)];
+                ingredient.onclick = () => {
+                    miniGamePoints += 10;
+                    miniGamePointsDisplay.textContent = miniGamePoints;
+                    ingredient.remove();
+                    createIngredient();
+                };
+                gameArea.appendChild(ingredient);
+            }
+
+            for (let i = 0; i < 5; i++) {
+                createIngredient();
+            }
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                timeLeftDisplay.textContent = timeLeft;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    miniGame.classList.add('hidden');
+                    points += miniGamePoints;
+                    pointsDisplay.textContent = points;
+                    gameArea.innerHTML = '';
+                }
+            }, 1000);
+        }
+
+        steps.forEach((step, index) => {
+            const button = step.querySelector('button');
+            button.addEventListener('click', () => {
+                if (Math.random() < 0.3) {
+                    startMiniGame();
+                } else {
+                    points += 50;
+                    pointsDisplay.textContent = points;
+                }
+                button.disabled = true;
+                step.classList.add('completed');
+                completedSteps++;
+                updateProgress();
+            });
         });
-    }
 
-    function onPlayerReady(event) {
-        player = event.target;
-    }
-
-    function playVideo() {
-        if (player && typeof player.playVideo === 'function') {
-            player.playVideo();
-        }
-    }
-
-    function pauseVideo() {
-        if (player && typeof player.pauseVideo === 'function') {
-            player.pauseVideo();
-        }
-    }
-</script>
-
+        updateProgress();
+    </script>
 </body>
 </html>
