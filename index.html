@@ -97,18 +97,28 @@
             text-align: center;
         }
 
+        .progress-bar-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: -20px;
+            position: relative;
+            top: -10px;
+        }
+
         .progress-bar {
-            flex-grow: 2;
+            width: 95%;
             height: 6px;
             background-color: #dcdcdc;
             border-radius: 3px;
             position: relative;
             cursor: pointer;
-            flex: 1 1 auto;
+            margin: 10px 0;
         }
 
         .progress {
-            background-color: #3498db;
+            background-color: #e74c3c;
             height: 100%;
             border-radius: 3px;
             width: 0%;
@@ -172,13 +182,15 @@
                 お使いのブラウザは動画再生に対応していません。
             </video>
         </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" onclick="seek(event)">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
         <div class="controls">
             <button class="play-button" onclick="togglePlayPause()">
                 ▶️
             </button>
-            <div class="progress-bar" onclick="seek(event)">
-                <div class="progress" id="progress"></div>
-            </div>
             <div class="time-display" id="time-display">00:00 / 01:30</div>
             <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.05" value="1">
             <select id="speed-control" class="speed-control" onchange="changeSpeed()">
